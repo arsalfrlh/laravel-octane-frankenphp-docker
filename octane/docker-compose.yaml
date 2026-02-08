@@ -1,0 +1,52 @@
+services:
+  frankenphp_laravel:
+    build:
+      context: .
+    container_name: frankenphp_laravel #nama container
+    ports:
+      - "8081:8000" #port yang akan dijalankan "http://localhost:8081"
+    networks:
+      - laravel_network #nama network
+
+networks:
+  laravel_network:
+    driver: bridge
+
+
+# jika ingin menggunakan 
+# services:
+#   frankenphp_laravel:
+#     build:
+#       context: .
+#     container_name: frankenphp_laravel
+#     ports:
+#       - "8081:8000"
+#     depends_on:
+#       - mysql
+#     env_file:
+#       - .env
+#     networks:
+#       - laravel_network
+
+#   mysql:
+#     image: mysql:8.0
+#     container_name: mysql_laravel
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: laravel
+#       MYSQL_ROOT_PASSWORD: root
+#       MYSQL_USER: laravel
+#       MYSQL_PASSWORD: laravel
+#     ports:
+#       - "3307:3306"
+#     volumes:
+#       - mysql_data:/var/lib/mysql
+#     networks:
+#       - laravel_network
+
+# networks:
+#   laravel_network:
+#     driver: bridge
+
+# volumes:
+#   mysql_data:
