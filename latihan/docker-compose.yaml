@@ -1,0 +1,83 @@
+services:
+  #jika http://localhost:8081 itu selalu loading coba utk membuka php my admin dan "buka databasenya laravel dan jalankan query untuk trigger"
+  frankenphp_laravel:
+    build:
+      context: . #container costume dibuat di folder ini langsung
+    container_name: frankenphp_laravel
+    # depends_on: #depends_on itu untuk menghubungkan service ini dengan service lainnya
+    #   - db
+    #   - minio #tambahkan service yg akan di pakai di container ini
+    ports:
+      - "8081:8000"   # Laravel Octane HTTP
+      - "8080:8080"   # Laravel Reverb WebSocket
+    volumes: #jika menambahkan volume itu tidak perlu rebuild saat membuat controller, model, dll kexual config, .env dll
+      - .:/app #tambahkan volume, jika tidak filesystem utk menyimpan "file, dll" di simpan di container| jika di tambahkan filesystem di masukan ke folder ini| nama volume harus sama lihat dibagian "Dockerfile"
+    networks:
+      - laravel_network
+
+  # queue_worker: #tambahkan service job queue
+  #   build:
+  #     context: . #jalankan di folder ini langsung
+  #   container_name: laravel_queue
+  #   command: php artisan queue:work --tries=3 --timeout=90
+  #   depends_on:
+  #     - db
+  #     - minio
+  #   networks:
+  #     - laravel_network
+
+  db:
+    image: mysql:8.0
+    container_name: laravel_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: laravel
+    ports:
+      - "3307:3306"
+    volumes:
+      - latihan_dbdata:/var/lib/mysql #jika ingin menggunakan frankenphp dan laravel octane database wajib serpti ini dan harus disesuaikan dengan nama folder projek "latihan itu nama folder projek ini" "latihan_dbdata"
+    networks:
+      - laravel_network
+
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - db
+    networks:
+      - laravel_network
+
+  # minio:
+  #   image: minio/minio
+  #   container_name: laravel_minio
+  #   command: server /data --console-address ":9001"
+  #   environment:
+  #     MINIO_ROOT_USER: minio
+  #     MINIO_ROOT_PASSWORD: minio123
+  #   ports:
+  #     - "9000:9000"
+  #     - "9001:9001"
+  #   volumes:
+  #     - minio_data:/data
+  #   networks:
+  #     - laravel_network
+
+networks:
+  laravel_network:
+    driver: bridge
+
+volumes:
+  latihan_dbdata:
+  # minio_data:
